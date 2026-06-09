@@ -323,8 +323,8 @@ export default function AdminDashboardClient({
       // Add logo over A1:A4 (Col 0, Row 0 to Col 1, Row 4)
       if (imageId !== undefined) {
         worksheet.addImage(imageId, {
-          tl: { col: 0, row: 0.2 },
-          br: { col: 1, row: 3.8 },
+          tl: { col: 0, row: 0.2 } as any,
+          br: { col: 1, row: 3.8 } as any,
           editAs: 'oneCell'
         });
       }
