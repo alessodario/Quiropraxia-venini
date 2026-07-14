@@ -3,6 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import HeroSlider from "@/components/HeroSlider";
+
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
@@ -14,28 +16,8 @@ export default function Home() {
     <>
       <div className="animate-fade-in">
         {/* Hero Section */}
-        <section style={{ 
-        position: "relative", 
-        height: "80vh", 
-        minHeight: "600px", 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "center",
-        overflow: "hidden"
-      }}>
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}>
-          <Image 
-            src="/hero.jpg" 
-            alt="Consultorio Quiropráctico" 
-            fill 
-            style={{ objectFit: "cover", filter: "brightness(0.7)" }} 
-            priority
-          />
-        </div>
-        
-        <div className="container" style={{ textAlign: "center" }}>
-        </div>
-      </section>
+        <HeroSlider />
+
 
 
       {/* Services/Info Section */}
