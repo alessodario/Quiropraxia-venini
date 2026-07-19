@@ -30,6 +30,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Este turno ya no está disponible." }, { status: 400 });
     }
 
+    // Format the incoming observation
+    let nuevaNota = "";
+    if (observaciones && observaciones.trim() !== "") {
+      const now = new Date();
+      const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", day: '2-digit', month: '2-digit', year: 'numeric' };
+      const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", hour: '2-digit', minute: '2-digit' };
+      const dateStr = now.toLocaleDateString('es-AR', dateOptions);
+      const timeStr = now.toLocaleTimeString('es-AR', timeOptions);
+      nuevaNota = `[${dateStr} - ${timeStr}hs] ${observaciones}`;
+    }
+
+    // Check if patient exists to preserve old observations
+    const existingPatient = await prisma.patient.findUnique({ where: { dni } });
+    
+    let finalObservaciones = existingPatient?.observaciones || null;
+    if (nuevaNota) {
+      finalObservaciones = finalObservaciones 
+        ? `${finalObservaciones}\n${nuevaNota}` 
+        : nuevaNota;
+    }
+
     // Upsert Patient (create if not exists by DNI, update if exists)
     const patient = await prisma.patient.upsert({
       where: { dni },
@@ -39,7 +60,7 @@ export async function POST(request: Request) {
         direccion,
         telefono,
         mail,
-        observaciones
+        observaciones: finalObservaciones
       },
       create: {
         dni,
@@ -48,7 +69,7 @@ export async function POST(request: Request) {
         direccion,
         telefono,
         mail,
-        observaciones
+        observaciones: finalObservaciones
       }
     });
 
