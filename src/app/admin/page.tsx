@@ -12,7 +12,12 @@ export default async function AdminDashboard() {
   });
 
   const patients = await prisma.patient.findMany({
-    orderBy: { nombre: 'asc' }
+    orderBy: { nombre: 'asc' },
+    include: {
+      appointments: {
+        orderBy: { date: 'desc' }
+      }
+    }
   });
 
   return <AdminDashboardClient initialAppointments={appointments} initialPatients={patients} />;

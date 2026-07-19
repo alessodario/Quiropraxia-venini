@@ -20,7 +20,7 @@ export default function AdminDashboardClient({
   // Patient inline editing states
   const [editingPatientId, setEditingPatientId] = useState<string | null>(null);
   const [editingPatientData, setEditingPatientData] = useState({
-    dni: "", nombre: "", edad: "", direccion: "", telefono: "", mail: "", observaciones: ""
+    dni: "", nombre: "", edad: "", direccion: "", telefono: "", mail: "", observaciones: "", nueva_observacion: ""
   });
 
   // Patient manual adding states
@@ -187,7 +187,8 @@ export default function AdminDashboardClient({
       direccion: patient.direccion || "",
       telefono: patient.telefono || "",
       mail: patient.mail || "",
-      observaciones: patient.observaciones || ""
+      observaciones: patient.observaciones || "",
+      nueva_observacion: ""
     });
     setPatientError("");
   };
@@ -292,6 +293,7 @@ export default function AdminDashboardClient({
       worksheet.getColumn(5).width = 15; // E
       worksheet.getColumn(6).width = 25; // F
       worksheet.getColumn(7).width = 40; // G
+      worksheet.getColumn(8).width = 40; // H
 
       // Fetch the logo image
       let imageId;
@@ -314,7 +316,7 @@ export default function AdminDashboardClient({
       worksheet.getRow(5).height = 25;
 
       // Merge cells for Title
-      worksheet.mergeCells('B2:G3');
+      worksheet.mergeCells('B2:H3');
       const titleCell = worksheet.getCell('B2');
       titleCell.value = 'BASE DE DATOS DE PACIENTES';
       titleCell.font = { name: 'Arial', size: 18, bold: true, color: { argb: 'FF004D40' } };
@@ -331,7 +333,7 @@ export default function AdminDashboardClient({
 
       // Add data headers (Row 5)
       const headerRow = worksheet.getRow(5);
-      headerRow.values = ['DNI', 'NOMBRE Y APELLIDO', 'EDAD', 'DIRECCIÓN', 'TELÉFONO', 'MAIL', 'OBSERVACIONES'];
+      headerRow.values = ['DNI', 'NOMBRE Y APELLIDO', 'EDAD', 'DIRECCIÓN', 'TELÉFONO', 'MAIL', 'OBSERVACIONES', 'HISTORIAL DE TURNOS'];
       
       headerRow.eachCell((cell) => {
         cell.fill = {
@@ -349,6 +351,10 @@ export default function AdminDashboardClient({
       // Add Patient Data (from Row 6)
       filteredPatients.forEach((p, index) => {
         const row = worksheet.getRow(6 + index);
+        const historialTurnos = p.appointments && p.appointments.length > 0 
+          ? p.appointments.map((a: any) => `${new Date(a.date).toLocaleDateString('es-AR')} - ${a.status === 'CONFIRMED' ? 'Confirmado' : 'Cancelado'}`).join('\n')
+          : "Sin turnos";
+        
         row.values = [
           p.dni,
           p.nombre,
@@ -356,7 +362,8 @@ export default function AdminDashboardClient({
           p.direccion,
           p.telefono,
           p.mail,
-          p.observaciones
+          p.observaciones,
+          historialTurnos
         ];
         row.eachCell((cell) => {
            cell.alignment = { vertical: 'middle', wrapText: true };
@@ -524,6 +531,7 @@ export default function AdminDashboardClient({
                   <th style={{ minWidth: "130px" }}>Teléfono</th>
                   <th style={{ minWidth: "200px" }}>Mail</th>
                   <th style={{ minWidth: "250px" }}>Observaciones</th>
+                  <th style={{ minWidth: "200px" }}>Historial de Turnos</th>
                   <th className="no-print" style={{ width: "160px" }}>Acciones</th>
                 </tr>
               </thead>
@@ -551,6 +559,7 @@ export default function AdminDashboardClient({
                     <td>
                       <input name="observaciones" type="text" placeholder="Observaciones" className="excel-input" value={newPatientData.observaciones} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
                     </td>
+                    <td>-</td>
                     <td className="no-print">
                       <div style={{ display: "flex", gap: "0.25rem" }}>
                         <button className="btn btn-primary" onClick={handleAddPatientSubmit} disabled={loadingAddPatient} style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem", width: "70px" }}>
@@ -596,7 +605,15 @@ export default function AdminDashboardClient({
                             <input name="mail" type="email" className="excel-input" value={editingPatientData.mail} onChange={handleEditPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #ffd966", background: "white" }} />
                           </td>
                           <td>
-                            <input name="observaciones" type="text" className="excel-input" value={editingPatientData.observaciones} onChange={handleEditPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #ffd966", background: "white" }} />
+                            <div style={{ whiteSpace: "pre-wrap", maxHeight: "80px", overflowY: "auto", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
+                              {editingPatientData.observaciones || "Sin observaciones previas"}
+                            </div>
+                            <input name="nueva_observacion" type="text" placeholder="Nueva observación..." className="excel-input" value={editingPatientData.nueva_observacion} onChange={handleEditPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #ffd966", background: "white" }} />
+                          </td>
+                          <td style={{ fontSize: "0.85rem", color: "var(--color-text-muted)", whiteSpace: "pre-wrap" }}>
+                             {patient.appointments && patient.appointments.length > 0 
+                               ? patient.appointments.map((a: any) => `${new Date(a.date).toLocaleDateString('es-AR')} - ${a.status === 'CONFIRMED' ? 'Confirmado' : 'Cancelado'}`).join('\n')
+                               : "Sin turnos"}
                           </td>
                           <td className="no-print">
                             <div style={{ display: "flex", gap: "0.25rem" }}>
@@ -620,7 +637,12 @@ export default function AdminDashboardClient({
                         <td>{patient.direccion || "-"}</td>
                         <td>{patient.telefono}</td>
                         <td>{patient.mail}</td>
-                        <td style={{ color: "var(--color-text-muted)", fontSize: "0.85rem" }}>{patient.observaciones || "-"}</td>
+                        <td style={{ color: "var(--color-text-muted)", fontSize: "0.85rem", whiteSpace: "pre-wrap" }}>{patient.observaciones || "-"}</td>
+                        <td style={{ fontSize: "0.85rem", color: "var(--color-text-muted)", whiteSpace: "pre-wrap" }}>
+                          {patient.appointments && patient.appointments.length > 0 
+                            ? patient.appointments.map((a: any) => `${new Date(a.date).toLocaleDateString('es-AR')} - ${a.status === 'CONFIRMED' ? 'Confirmado' : 'Cancelado'}`).join('\n')
+                            : "Sin turnos"}
+                        </td>
                         <td className="no-print">
                           <div style={{ display: "flex", gap: "0.25rem" }}>
                             <button className="btn btn-outline" onClick={() => handleEditPatientClick(patient)} style={{ padding: "0.25rem 0.5rem", fontSize: "0.85rem", width: "70px" }}>

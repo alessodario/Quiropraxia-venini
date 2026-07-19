@@ -19,7 +19,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     const body = await request.json();
-    const { dni, nombre, edad, direccion, telefono, mail, observaciones } = body;
+    const { dni, nombre, edad, direccion, telefono, mail, nueva_observacion } = body;
 
     // Verificar si el paciente existe
     const patient = await prisma.patient.findUnique({ where: { id } });
@@ -35,6 +35,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       }
     }
 
+    let finalObservaciones = patient.observaciones;
+    if (nueva_observacion && nueva_observacion.trim() !== "") {
+      const now = new Date();
+      const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", day: '2-digit', month: '2-digit', year: 'numeric' };
+      const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", hour: '2-digit', minute: '2-digit' };
+      const dateStr = now.toLocaleDateString('es-AR', dateOptions);
+      const timeStr = now.toLocaleTimeString('es-AR', timeOptions);
+      const nuevaNota = `[${dateStr} - ${timeStr}hs] ${nueva_observacion}`;
+      
+      finalObservaciones = patient.observaciones 
+        ? `${patient.observaciones}\n${nuevaNota}` 
+        : nuevaNota;
+    }
+
     const updated = await prisma.patient.update({
       where: { id },
       data: {
@@ -44,7 +58,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         direccion: direccion !== undefined ? direccion : undefined,
         telefono: telefono ?? undefined,
         mail: mail ?? undefined,
-        observaciones: observaciones !== undefined ? observaciones : undefined
+        observaciones: finalObservaciones
       }
     });
 

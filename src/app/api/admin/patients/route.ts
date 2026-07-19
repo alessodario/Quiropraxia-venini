@@ -49,6 +49,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Ya existe un paciente con este DNI" }, { status: 400 });
     }
 
+    let formattedObservaciones = null;
+    if (observaciones && observaciones.trim() !== "") {
+      const now = new Date();
+      const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", day: '2-digit', month: '2-digit', year: 'numeric' };
+      const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", hour: '2-digit', minute: '2-digit' };
+      const dateStr = now.toLocaleDateString('es-AR', dateOptions);
+      const timeStr = now.toLocaleTimeString('es-AR', timeOptions);
+      formattedObservaciones = `[${dateStr} - ${timeStr}hs] ${observaciones}`;
+    }
+
     const patient = await prisma.patient.create({
       data: {
         dni,
@@ -57,7 +67,7 @@ export async function POST(request: Request) {
         direccion,
         telefono,
         mail,
-        observaciones
+        observaciones: formattedObservaciones
       }
     });
 
