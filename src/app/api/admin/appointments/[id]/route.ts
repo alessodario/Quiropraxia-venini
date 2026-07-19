@@ -28,7 +28,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     } 
     
     if (action === "UPDATE") {
-      const app = await prisma.appointment.findUnique({ where: { id: appointmentId } });
+      const app = await prisma.appointment.findUnique({ 
+        where: { id: appointmentId },
+        include: { patient: true }
+      });
       if (!app) return NextResponse.json({ error: "Turno no encontrado" }, { status: 404 });
 
       // Update patient data
