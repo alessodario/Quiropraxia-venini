@@ -41,7 +41,7 @@ export default function AdminDashboardClient({
   const [loadingSlots, setLoadingSlots] = useState(false);
 
   const [patientData, setPatientData] = useState({
-    dni: "", nombre: "", edad: "", direccion: "", telefono: "", mail: "", observaciones: ""
+    dni: "", nombre: "", edad: "", direccion: "", telefono: "", mail: "", observaciones: "", nueva_observacion: ""
   });
 
   // Schedule Config States
@@ -106,7 +106,8 @@ export default function AdminDashboardClient({
       direccion: app.patient?.direccion || "",
       telefono: app.patient?.telefono || "",
       mail: app.patient?.mail || "",
-      observaciones: app.patient?.observaciones || ""
+      observaciones: app.patient?.observaciones || "",
+      nueva_observacion: ""
     });
 
     setShowRescheduleModal(true);
@@ -743,8 +744,13 @@ export default function AdminDashboardClient({
               </div>
 
               <div className="form-group" style={{ gridColumn: "1 / -1" }}>
-                <label className="form-label">Motivo de la consulta / Observaciones</label>
-                <textarea name="observaciones" value={patientData.observaciones} onChange={handlePatientDataChange} className="form-input" rows={3}></textarea>
+                <label className="form-label">Motivo de la consulta / Observaciones Previas</label>
+                <div style={{ whiteSpace: "pre-wrap", maxHeight: "100px", overflowY: "auto", fontSize: "0.85rem", padding: "0.5rem", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#f9f9f9", marginBottom: "1rem" }}>
+                  {patientData.observaciones || "Sin observaciones previas"}
+                </div>
+                
+                <label className="form-label">Nueva Observación</label>
+                <textarea name="nueva_observacion" value={patientData.nueva_observacion} onChange={handlePatientDataChange} className="form-input" rows={2} placeholder="Escribe aquí una nueva observación..."></textarea>
               </div>
             </div>
 

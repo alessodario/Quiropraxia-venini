@@ -33,6 +33,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
       // Update patient data
       if (patientData) {
+         let finalObservaciones = app.patient?.observaciones;
+         if (patientData.nueva_observacion && patientData.nueva_observacion.trim() !== "") {
+           const now = new Date();
+           const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", day: '2-digit', month: '2-digit', year: 'numeric' };
+           const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Argentina/Buenos_Aires", hour: '2-digit', minute: '2-digit' };
+           const dateStr = now.toLocaleDateString('es-AR', dateOptions);
+           const timeStr = now.toLocaleTimeString('es-AR', timeOptions);
+           const nuevaNota = `[${dateStr} - ${timeStr}hs] ${patientData.nueva_observacion}`;
+           finalObservaciones = finalObservaciones ? `${finalObservaciones}\n${nuevaNota}` : nuevaNota;
+         }
+
          await prisma.patient.update({
            where: { id: app.patientId },
            data: {
@@ -42,7 +53,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
              direccion: patientData.direccion,
              telefono: patientData.telefono,
              mail: patientData.mail,
-             observaciones: patientData.observaciones
+             ...(patientData.nueva_observacion && patientData.nueva_observacion.trim() !== "" ? { observaciones: finalObservaciones } : {})
            }
          });
       }
