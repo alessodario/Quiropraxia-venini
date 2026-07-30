@@ -52,8 +52,8 @@ export default function HeroSlider() {
     <section
       style={{
         position: "relative",
-        height: "80vh",
-        minHeight: "600px",
+        height: "40vh",
+        minHeight: "350px",
         overflow: "hidden",
       }}
     >
@@ -79,11 +79,35 @@ export default function HeroSlider() {
               src={src}
               alt={`Consultorio Quiropráctico ${index + 1}`}
               fill
-              style={{ objectFit: "cover", filter: "brightness(0.7)" }}
+              style={{ objectFit: "cover", filter: "brightness(0.6)" }}
               priority={index === 0}
             />
           </div>
         ))}
+      </div>
+
+      {/* Título superpuesto (Overlay Text) */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          textAlign: "center",
+          zIndex: 5,
+          color: "white",
+          width: "90%",
+          maxWidth: "800px",
+          textShadow: "0 4px 15px rgba(0,0,0,0.8)",
+          pointerEvents: "none",
+        }}
+      >
+        <h1 style={{ fontSize: "clamp(1.8rem, 4vw, 3.5rem)", fontWeight: 700, marginBottom: "0.5rem", letterSpacing: "1px" }}>
+          Mejora tu calidad de vida hoy
+        </h1>
+        <p style={{ fontSize: "clamp(1rem, 2vw, 1.5rem)", fontWeight: 400, opacity: 0.95 }}>
+          Visita nuestro consultorio quiropráctico en San Carlos de Bariloche y recupera tu bienestar integral.
+        </p>
       </div>
 
       <div
