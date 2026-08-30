@@ -104,6 +104,34 @@ export default function BookingForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const [checkingDNI, setCheckingDNI] = useState(false);
+
+  const checkDNI = async (dni: string) => {
+    if (!dni || dni.length < 7) return;
+    
+    setCheckingDNI(true);
+    try {
+      const res = await fetch(`/api/patients/lookup?dni=${dni}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.patient) {
+          setFormData(prev => ({
+            ...prev,
+            nombre: prev.nombre || data.patient.nombre || "",
+            edad: prev.edad || (data.patient.edad ? data.patient.edad.toString() : ""),
+            direccion: prev.direccion || data.patient.direccion || "",
+            telefono: prev.telefono || data.patient.telefono || "",
+            mail: prev.mail || data.patient.mail || ""
+          }));
+        }
+      }
+    } catch (err) {
+      console.error("Error checking DNI:", err);
+    } finally {
+      setCheckingDNI(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingSubmit(true);
@@ -294,7 +322,8 @@ export default function BookingForm() {
           <div className="grid grid-cols-2">
             <div className="form-group">
               <label className="form-label">DNI *</label>
-              <input required type="text" name="dni" className="form-input" value={formData.dni} onChange={handleChange} />
+              <input required type="text" name="dni" className="form-input" value={formData.dni} onChange={handleChange} onBlur={(e) => checkDNI(e.target.value)} />
+              {checkingDNI && <small style={{ color: "var(--color-primary)" }}>Buscando datos...</small>}
             </div>
             <div className="form-group">
               <label className="form-label">Nombre Completo *</label>
