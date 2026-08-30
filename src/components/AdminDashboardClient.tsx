@@ -446,7 +446,12 @@ export default function AdminDashboardClient({
             </button>
           </div>
           
-          {appointments.length === 0 ? (
+          {appointments.filter((app: any) => {
+             const appDate = new Date(app.date);
+             const today = new Date();
+             today.setHours(0, 0, 0, 0); // Inicio del día actual
+             return appDate >= today;
+          }).length === 0 ? (
             <p>No hay turnos agendados por el momento.</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
@@ -459,7 +464,14 @@ export default function AdminDashboardClient({
                 </tr>
               </thead>
               <tbody>
-                {appointments.map((app) => (
+                {appointments
+                  .filter((app: any) => {
+                    const appDate = new Date(app.date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return appDate >= today;
+                  })
+                  .map((app) => (
                   <tr key={app.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                     <td style={{ padding: "1rem", fontWeight: "bold" }}>
                       {new Date(app.date).toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: '2-digit' })}
