@@ -24,7 +24,7 @@ export default function AdminDashboardClient({
   });
 
   // Patient manual adding states
-  const [showAddRow, setShowAddRow] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [newPatientData, setNewPatientData] = useState({
     dni: "", nombre: "", edad: "", direccion: "", telefono: "", mail: "", observaciones: ""
   });
@@ -241,7 +241,7 @@ export default function AdminDashboardClient({
     }
   };
 
-  const handleNewPatientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewPatientChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setNewPatientData({ ...newPatientData, [e.target.name]: e.target.value });
   };
 
@@ -264,7 +264,7 @@ export default function AdminDashboardClient({
         setNewPatientData({
           dni: "", nombre: "", edad: "", direccion: "", telefono: "", mail: "", observaciones: ""
         });
-        setShowAddRow(false);
+        setShowAddModal(false);
       } else {
         setPatientError(data.error || "Error al agregar");
       }
@@ -506,11 +506,11 @@ export default function AdminDashboardClient({
                 className="btn btn-primary" 
                 style={{ padding: "0.5rem 1.5rem" }}
                 onClick={() => {
-                  setShowAddRow(!showAddRow);
+                  setShowAddModal(true);
                   setPatientError("");
                 }}
               >
-                {showAddRow ? "✖ Cancelar" : "➕ Agregar Paciente"}
+                ➕ Agregar Paciente
               </button>
             </div>
           </div>
@@ -537,42 +537,6 @@ export default function AdminDashboardClient({
                 </tr>
               </thead>
               <tbody>
-                {showAddRow && (
-                  <tr style={{ backgroundColor: "#e2f0d9" }}>
-                    <td>
-                      <input name="dni" type="text" placeholder="DNI" className="excel-input" value={newPatientData.dni} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
-                    </td>
-                    <td>
-                      <input name="nombre" type="text" placeholder="Nombre y Apellido" className="excel-input" value={newPatientData.nombre} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
-                    </td>
-                    <td>
-                      <input name="edad" type="number" placeholder="Edad" className="excel-input" value={newPatientData.edad} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
-                    </td>
-                    <td>
-                      <input name="direccion" type="text" placeholder="Dirección" className="excel-input" value={newPatientData.direccion} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
-                    </td>
-                    <td>
-                      <input name="telefono" type="tel" placeholder="Teléfono" className="excel-input" value={newPatientData.telefono} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
-                    </td>
-                    <td>
-                      <input name="mail" type="email" placeholder="Mail" className="excel-input" value={newPatientData.mail} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
-                    </td>
-                    <td>
-                      <input name="observaciones" type="text" placeholder="Observaciones" className="excel-input" value={newPatientData.observaciones} onChange={handleNewPatientChange} onFocus={(e) => e.target.select()} style={{ border: "1px solid #a9d08e", background: "white" }} />
-                    </td>
-                    <td>-</td>
-                    <td className="no-print">
-                      <div style={{ display: "flex", gap: "0.25rem" }}>
-                        <button className="btn btn-primary" onClick={handleAddPatientSubmit} disabled={loadingAddPatient} style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem", width: "70px" }}>
-                          {loadingAddPatient ? "..." : "Guardar"}
-                        </button>
-                        <button className="btn btn-outline" onClick={() => { setShowAddRow(false); setPatientError(""); }} style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem", width: "70px" }}>
-                          Cerrar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )}
 
                 {filteredPatients.length === 0 ? (
                   <tr>
@@ -676,6 +640,59 @@ export default function AdminDashboardClient({
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1.5rem" }}>
               <button className="btn btn-outline" onClick={() => setShowPasswordModal(false)}>Cerrar</button>
               <button className="btn btn-primary" onClick={changePassword}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Patient Modal */}
+      {showAddModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, overflowY: "auto", padding: "2rem" }}>
+          <div className="glass-card modal-animate" style={{ width: "600px", maxHeight: "90vh", overflowY: "auto" }}>
+            <h3>Agregar Nuevo Paciente</h3>
+            
+            {patientError && (
+              <div style={{ backgroundColor: "#fee2e2", color: "#b91c1c", padding: "0.75rem", borderRadius: "8px", margin: "1rem 0" }}>
+                ⚠️ {patientError}
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
+              <div className="form-group">
+                <label className="form-label">Nombre y Apellido *</label>
+                <input name="nombre" type="text" className="form-input" value={newPatientData.nombre} onChange={handleNewPatientChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">DNI *</label>
+                <input name="dni" type="text" className="form-input" value={newPatientData.dni} onChange={handleNewPatientChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Edad</label>
+                <input name="edad" type="number" className="form-input" value={newPatientData.edad} onChange={handleNewPatientChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Teléfono *</label>
+                <input name="telefono" type="tel" className="form-input" value={newPatientData.telefono} onChange={handleNewPatientChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Mail *</label>
+                <input name="mail" type="email" className="form-input" value={newPatientData.mail} onChange={handleNewPatientChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Dirección</label>
+                <input name="direccion" type="text" className="form-input" value={newPatientData.direccion} onChange={handleNewPatientChange} />
+              </div>
+              <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                <label className="form-label">Observaciones</label>
+                <textarea name="observaciones" className="form-input" value={newPatientData.observaciones} onChange={handleNewPatientChange} rows={3} placeholder="Motivo de consulta inicial..."></textarea>
+              </div>
+            </div>
+            
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1.5rem" }}>
+              <button className="btn btn-outline" onClick={() => { setShowAddModal(false); setPatientError(""); }}>Cancelar</button>
+              <button className="btn btn-primary" onClick={handleAddPatientSubmit} disabled={loadingAddPatient}>
+                {loadingAddPatient ? "Guardando..." : "Guardar Paciente"}
+              </button>
             </div>
           </div>
         </div>
